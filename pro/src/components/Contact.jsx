@@ -1,4 +1,4 @@
-﻿import { motion, useInView } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
 
 const socials = [
@@ -11,6 +11,7 @@ const socials = [
       </svg>
     ),
     color: 'var(--color-sky)',
+    bg: 'var(--color-sky-light)',
   },
   {
     name: 'GitHub',
@@ -20,7 +21,8 @@ const socials = [
         <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
       </svg>
     ),
-    color: 'var(--color-white)',
+    color: 'var(--color-text)',
+    bg: 'var(--color-surface-2)',
   },
   {
     name: 'Email',
@@ -31,6 +33,7 @@ const socials = [
       </svg>
     ),
     color: 'var(--color-pink)',
+    bg: 'var(--color-pink-light)',
   },
 ];
 
@@ -38,6 +41,7 @@ export default function Contact() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-100px' });
   const [formStatus, setFormStatus] = useState('');
+  const [focusedField, setFocusedField] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -45,22 +49,36 @@ export default function Contact() {
     setTimeout(() => setFormStatus(''), 3000);
   };
 
-  return (
-    <section id="contact" className="section" ref={ref}>
-      <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-pink to-transparent" />
+  const inputStyle = (field) => ({
+    width: '100%',
+    padding: '14px 18px',
+    background: 'var(--color-surface)',
+    border: `1.5px solid ${focusedField === field ? 'var(--color-pink)' : 'var(--color-border)'}`,
+    borderRadius: '10px',
+    color: 'var(--color-text)',
+    fontSize: '0.95rem',
+    transition: 'border-color 0.25s, box-shadow 0.25s',
+    boxShadow: focusedField === field ? '0 0 0 3px var(--color-pink-light)' : 'none',
+    outline: 'none',
+  });
 
-      <div className="section-inner max-w-5xl">
+  return (
+    <section id="contact" className="section" ref={ref} style={{ background: 'var(--color-surface)' }}>
+      {/* Top line */}
+      <div className="absolute top-0 left-0 w-full h-px" style={{ background: 'linear-gradient(90deg, transparent, var(--color-pink)50, var(--color-sky)50, transparent)' }} />
+
+      <div className="section-inner" style={{ maxWidth: '1000px' }}>
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold font-heading mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: 'var(--color-text)' }}>
             Get In <span className="text-gradient-pink-sky">Touch</span>
           </h2>
-          <div className="w-20 h-1 bg-linear-to-r from-pink to-sky mx-auto rounded-full" />
-          <p className="text-gray-light mt-6 max-w-xl mx-auto">
+          <div className="section-divider" />
+          <p className="mt-6 max-w-xl mx-auto text-sm" style={{ color: 'var(--color-text-muted)' }}>
             Have a project in mind or just want to connect? I'd love to hear from you.
           </p>
         </motion.div>
@@ -69,47 +87,67 @@ export default function Contact() {
           {/* Contact Form */}
           <motion.form
             onSubmit={handleSubmit}
-            className="space-y-5 glass rounded-2xl p-6 md:p-7"
+            className="space-y-5 card"
+            style={{ borderRadius: '20px', padding: 'clamp(1.5rem, 4vw, 2.2rem)' }}
             initial={{ opacity: 0, x: -30 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <div>
+              <label className="block text-xs font-semibold tracking-wide mb-2" style={{ color: 'var(--color-text-muted)' }}>
+                YOUR NAME
+              </label>
               <input
                 type="text"
-                placeholder="Your Name"
+                placeholder="Manos Jyoti"
                 required
-                className="w-full px-5 py-4 bg-dark-card border border-gray-dark rounded-xl text-white placeholder:text-gray-light/50 focus:outline-none focus:border-pink focus:shadow-[0_0_20px_var(--color-pink-glow)] transition-all duration-300"
+                style={inputStyle('name')}
+                onFocus={() => setFocusedField('name')}
+                onBlur={() => setFocusedField('')}
               />
             </div>
             <div>
+              <label className="block text-xs font-semibold tracking-wide mb-2" style={{ color: 'var(--color-text-muted)' }}>
+                EMAIL ADDRESS
+              </label>
               <input
                 type="email"
-                placeholder="Your Email"
+                placeholder="hello@example.com"
                 required
-                className="w-full px-5 py-4 bg-dark-card border border-gray-dark rounded-xl text-white placeholder:text-gray-light/50 focus:outline-none focus:border-sky focus:shadow-[0_0_20px_var(--color-sky-glow)] transition-all duration-300"
+                style={inputStyle('email')}
+                onFocus={() => setFocusedField('email')}
+                onBlur={() => setFocusedField('')}
               />
             </div>
             <div>
+              <label className="block text-xs font-semibold tracking-wide mb-2" style={{ color: 'var(--color-text-muted)' }}>
+                MESSAGE
+              </label>
               <textarea
                 rows={5}
-                placeholder="Your Message"
+                placeholder="Tell me about your project or idea..."
                 required
-                className="w-full px-5 py-4 bg-dark-card border border-gray-dark rounded-xl text-white placeholder:text-gray-light/50 focus:outline-none focus:border-neon focus:shadow-[0_0_20px_var(--color-neon-glow)] transition-all duration-300 resize-none"
+                style={{ ...inputStyle('message'), resize: 'none' }}
+                onFocus={() => setFocusedField('message')}
+                onBlur={() => setFocusedField('')}
               />
             </div>
 
-            {/* Send button — trapezoid shape */}
             <motion.button
               type="submit"
-              className="w-full py-4 font-bold text-dark transition-all duration-300 relative overflow-hidden group"
+              className="w-full py-4 font-bold text-white relative overflow-hidden"
               style={{
                 background: formStatus === 'sent'
                   ? 'var(--color-neon)'
                   : 'linear-gradient(135deg, var(--color-pink), var(--color-sky))',
-                clipPath: 'polygon(0 0, 100% 0, 94% 100%, 6% 100%)',
+                borderRadius: '10px',
                 letterSpacing: '0.05em',
+                fontSize: '0.9rem',
+                color: formStatus === 'sent' ? 'var(--color-text)' : 'white',
+                border: 'none',
+                cursor: 'pointer',
               }}
+              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
               <span className="relative z-10 flex items-center justify-center gap-2">
@@ -134,16 +172,16 @@ export default function Contact() {
 
           {/* Social Links */}
           <motion.div
-            className="flex flex-col justify-between glass rounded-2xl p-6 md:p-7"
+            className="flex flex-col justify-between"
             initial={{ opacity: 0, x: 30 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <div>
-              <h3 className="text-2xl font-bold font-heading mb-4 text-white">
+            <div className="card" style={{ borderRadius: '20px', padding: 'clamp(1.5rem, 4vw, 2.2rem)', marginBottom: '1.25rem' }}>
+              <h3 className="text-xl font-bold mb-3" style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-text)' }}>
                 Let's Connect
               </h3>
-              <p className="text-gray-light mb-8 leading-relaxed text-sm">
+              <p className="text-sm leading-relaxed mb-7" style={{ color: 'var(--color-text-muted)', lineHeight: '1.75' }}>
                 Whether it's a collaboration, freelance opportunity, or just a tech conversation —
                 I'm always open. Reach out through any of the platforms below.
               </p>
@@ -157,31 +195,24 @@ export default function Contact() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-4 p-4 group transition-all duration-300"
                     style={{
-                      background: 'rgba(255,255,255,0.02)',
-                      border: `1px solid rgba(255,255,255,0.05)`,
+                      background: 'var(--color-surface)',
+                      border: '1px solid var(--color-border)',
                       borderLeft: `3px solid ${s.color}`,
-                      borderRadius: '0 8px 8px 0',
+                      borderRadius: '0 10px 10px 0',
                     }}
-                    whileHover={{ x: 8 }}
+                    whileHover={{ x: 6, background: 'var(--color-bg-alt)' }}
                     initial={{ opacity: 0, x: -20 }}
                     animate={inView ? { opacity: 1, x: 0 } : {}}
-                    transition={{ delay: 0.5 + i * 0.1 }}
+                    transition={{ delay: 0.55 + i * 0.1 }}
                   >
                     <span
-                      className="p-2 rounded-lg shrink-0"
-                      style={{ color: s.color, background: s.color + '15' }}
+                      className="p-2.5 rounded-lg shrink-0"
+                      style={{ color: s.color, background: s.bg }}
                     >
                       {s.icon}
                     </span>
-                    <span className="text-gray-light group-hover:text-white transition-colors font-medium">
-                      {s.name}
-                    </span>
-                    <svg
-                      className="w-4 h-4 ml-auto text-gray-dark group-hover:text-white transition-all group-hover:translate-x-1"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                    <span className="font-medium" style={{ color: 'var(--color-text)' }}>{s.name}</span>
+                    <svg className="w-4 h-4 ml-auto transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--color-text-subtle)' }}>
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </motion.a>
@@ -189,16 +220,20 @@ export default function Contact() {
               </div>
             </div>
 
-            <div className="mt-8">
-              <div
-                className="flex items-center gap-2 text-xs text-gray-light/60 py-3 px-4"
-                style={{ border: '1px solid rgba(255,255,255,0.04)', borderRadius: '4px' }}
-              >
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="1"/>
-                  <path d="M6 4v2.5L7.5 8" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+            {/* Location card */}
+            <div
+              className="card flex items-center gap-3 px-5 py-4"
+              style={{ borderRadius: '12px' }}
+            >
+              <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: 'var(--color-pink-light)' }}>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ color: 'var(--color-pink)' }}>
+                  <path d="M7 1C4.8 1 3 2.8 3 5c0 3.5 4 8 4 8s4-4.5 4-8c0-2.2-1.8-4-4-4z" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+                  <circle cx="7" cy="5" r="1.2" fill="currentColor"/>
                 </svg>
-                Location: Phagwara, Punjab, India
+              </div>
+              <div>
+                <p className="text-xs font-semibold" style={{ color: 'var(--color-text)' }}>Current Location</p>
+                <p className="text-xs" style={{ color: 'var(--color-text-subtle)' }}>Phagwara, Punjab, India</p>
               </div>
             </div>
           </motion.div>
@@ -206,13 +241,14 @@ export default function Contact() {
 
         {/* Footer */}
         <motion.div
-          className="mt-20 pt-8 border-t border-white/5 text-center"
+          className="mt-20 pt-8 text-center"
+          style={{ borderTop: '1px solid var(--color-border)' }}
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 0.9 }}
         >
-          <p className="text-sm text-gray-dark">
-            © 2026 <span className="text-gradient-pink-sky font-medium">Manos Jyoti Gogoi</span>. Built with React, Tailwind CSS & Framer Motion.
+          <p className="text-sm" style={{ color: 'var(--color-text-subtle)' }}>
+            © 2026 <span className="text-gradient-pink-sky font-semibold">Manos Jyoti Gogoi</span>. Built with React, Tailwind CSS & Framer Motion.
           </p>
         </motion.div>
       </div>

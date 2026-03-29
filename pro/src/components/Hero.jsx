@@ -8,17 +8,6 @@ const roles = [
   'React Specialist',
 ];
 
-function FloatingOrb({ color, size, x, y, delay }) {
-  return (
-    <motion.div
-      className="absolute rounded-full opacity-30 blur-3xl pointer-events-none"
-      style={{ background: color, width: size, height: size, left: x, top: y }}
-      animate={{ x: [0, 30, -20, 0], y: [0, -40, 20, 0], scale: [1, 1.2, 0.9, 1] }}
-      transition={{ duration: 8, delay, repeat: Infinity, ease: 'easeInOut' }}
-    />
-  );
-}
-
 export default function Hero() {
   const [roleIndex, setRoleIndex] = useState(0);
   const [displayText, setDisplayText] = useState('');
@@ -31,15 +20,15 @@ export default function Hero() {
       if (displayText.length < current.length) {
         timeout = setTimeout(() => setDisplayText(current.slice(0, displayText.length + 1)), 80);
       } else {
-        timeout = setTimeout(() => setIsDeleting(true), 1200);
+        timeout = setTimeout(() => setIsDeleting(true), 1400);
       }
     } else if (displayText.length > 0) {
-      timeout = setTimeout(() => setDisplayText(current.slice(0, displayText.length - 1)), 40);
+      timeout = setTimeout(() => setDisplayText(current.slice(0, displayText.length - 1)), 42);
     } else {
       timeout = setTimeout(() => {
         setIsDeleting(false);
         setRoleIndex((prev) => (prev + 1) % roles.length);
-      }, 180);
+      }, 200);
     }
     return () => clearTimeout(timeout);
   }, [displayText, isDeleting, roleIndex]);
@@ -48,129 +37,123 @@ export default function Hero() {
     <section
       id="hero"
       className="relative min-h-screen flex items-center justify-center overflow-hidden px-5 pt-28 pb-16"
+      style={{ background: 'var(--color-bg)' }}
     >
-      <FloatingOrb color="var(--color-pink)" size="400px" x="10%" y="20%" delay={0} />
-      <FloatingOrb color="var(--color-sky)" size="350px" x="70%" y="60%" delay={2} />
-      <FloatingOrb color="var(--color-neon)" size="250px" x="50%" y="10%" delay={4} />
+      {/* Subtle background texture */}
+      <div className="absolute inset-0 opacity-[0.025]" style={{
+        backgroundImage: 'radial-gradient(circle at 1px 1px, #888 1px, transparent 0)',
+        backgroundSize: '40px 40px',
+      }} />
 
-      {/* Grid overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
-        }}
-      />
+      {/* Soft color blobs */}
+      <div className="absolute top-1/4 left-1/5 w-80 h-80 rounded-full pointer-events-none"
+        style={{ background: 'var(--color-pink)', opacity: 0.06, filter: 'blur(80px)' }} />
+      <div className="absolute bottom-1/4 right-1/5 w-72 h-72 rounded-full pointer-events-none"
+        style={{ background: 'var(--color-sky)', opacity: 0.06, filter: 'blur(80px)' }} />
 
       <div className="relative z-10 text-center w-full max-w-5xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
+        <motion.p
+          className="text-xs font-semibold tracking-[0.35em] uppercase mb-8"
+          style={{ color: 'var(--color-text-subtle)' }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ delay: 0.2 }}
         >
-          <motion.p
-            className="text-neon text-sm font-semibold tracking-[0.3em] uppercase mb-6"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            Welcome to my portfolio
-          </motion.p>
+          Portfolio · 2026
+        </motion.p>
 
-          <motion.h1
-            className="text-5xl sm:text-6xl md:text-8xl font-black leading-tight mb-6 font-heading"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-          >
-            <span className="block text-white">Hi, I'm</span>
-            <span className="text-gradient-pink-sky animate-gradient block mt-2">
-              Manos Jyoti Gogoi
-            </span>
-          </motion.h1>
+        <motion.h1
+          className="font-black leading-tight mb-6"
+          style={{ fontFamily: 'var(--font-heading)', fontSize: 'clamp(2.8rem, 8vw, 6rem)', color: 'var(--color-text)' }}
+          initial={{ opacity: 0, scale: 0.94 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3, duration: 0.7 }}
+        >
+          <span className="block">Hi, I'm</span>
+          <span className="text-gradient-pink-sky animate-gradient block mt-1">
+            Manos Jyoti Gogoi
+          </span>
+        </motion.h1>
 
-          <motion.div
-            className="text-xl sm:text-2xl md:text-3xl text-gray-light mb-10 min-h-10"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-          >
-            <span>{displayText}</span>
-            <span className="inline-block w-0.5 h-7 bg-pink ml-1 animate-pulse" />
-          </motion.div>
+        <motion.div
+          className="text-xl sm:text-2xl mb-12 min-h-10"
+          style={{ color: 'var(--color-text-muted)' }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+        >
+          <span>{displayText}</span>
+          <span className="inline-block w-0.5 h-6 ml-1 animate-pulse" style={{ background: 'var(--color-pink)' }} />
         </motion.div>
 
+        {/* CTA Buttons */}
         <motion.div
-          className="flex flex-col sm:flex-row gap-5 justify-center items-center"
+          className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
         >
-          {/* Diamond-clipped primary CTA */}
           <a
             href="#projects"
-            className="group relative overflow-hidden font-bold text-dark transition-all duration-300 hover:scale-105"
+            className="group relative overflow-hidden font-bold transition-all duration-300 hover:scale-105"
             style={{
               background: 'linear-gradient(135deg, var(--color-pink), var(--color-sky))',
-              clipPath: 'polygon(16px 0%, 100% 0%, calc(100% - 16px) 100%, 0% 100%)',
-              padding: '14px 40px',
+              clipPath: 'polygon(14px 0%, 100% 0%, calc(100% - 14px) 100%, 0% 100%)',
+              padding: '14px 44px',
               letterSpacing: '0.05em',
-              fontSize: '0.95rem',
+              fontSize: '0.9rem',
+              color: 'white',
             }}
           >
-            <span className="relative z-10 flex items-center gap-2">
-              View My Projects
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </span>
-            {/* Shimmer on hover */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-              style={{ background: 'linear-gradient(135deg, var(--color-sky), var(--color-pink))' }} />
+            View My Projects
           </a>
-
-          {/* Rounded-corner rectangle with neon border */}
           <a
             href="#contact"
-            className="group font-semibold text-neon transition-all duration-300 hover:text-dark"
+            className="group font-semibold transition-all duration-300 hover:scale-105"
             style={{
-              border: '2px solid var(--color-neon)',
-              borderRadius: '6px',
-              padding: '12px 32px',
-              fontSize: '0.95rem',
-              position: 'relative',
-              overflow: 'hidden',
+              border: '2px solid var(--color-text)',
+              borderRadius: '4px',
+              padding: '12px 36px',
+              fontSize: '0.9rem',
+              color: 'var(--color-text)',
+              background: 'transparent',
             }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--color-text)'; e.currentTarget.style.color = 'var(--color-bg)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--color-text)'; }}
           >
-            <span className="relative z-10">Contact Me</span>
-            <div
-              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              style={{ background: 'var(--color-neon)' }}
-            />
+            Contact Me
           </a>
         </motion.div>
 
-        {/* Stat pills */}
+        {/* Stats — bigger, with breathing space */}
         <motion.div
-          className="flex flex-wrap justify-center gap-3 mt-12"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          className="flex flex-wrap justify-center gap-8 sm:gap-16"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.1 }}
         >
           {[
-            { val: '2+', label: 'Projects' },
-            { val: '1', label: 'IEEE Paper' },
-            { val: '10+', label: 'Technologies' },
-          ].map((s) => (
-            <div
+            { val: '2+', label: 'Projects', color: 'var(--color-pink)' },
+            { val: '1', label: 'IEEE Paper', color: 'var(--color-sky)' },
+            { val: '10+', label: 'Technologies', color: 'var(--color-neon)' },
+          ].map((s, i) => (
+            <motion.div
               key={s.label}
-              className="glass flex items-center gap-2 px-4 py-2"
-              style={{ borderRadius: '4px', border: '1px solid rgba(255,255,255,0.06)' }}
+              className="flex flex-col items-center gap-1"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2 + i * 0.12 }}
             >
-              <span className="text-white font-bold text-sm">{s.val}</span>
-              <span className="text-gray-light text-xs">{s.label}</span>
-            </div>
+              <span
+                className="font-black leading-none"
+                style={{ fontFamily: 'var(--font-heading)', fontSize: 'clamp(2.4rem, 5vw, 3.5rem)', color: s.color }}
+              >
+                {s.val}
+              </span>
+              <span className="text-sm font-medium tracking-wide uppercase" style={{ color: 'var(--color-text-subtle)' }}>
+                {s.label}
+              </span>
+            </motion.div>
           ))}
         </motion.div>
       </div>
@@ -181,9 +164,10 @@ export default function Hero() {
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 2, repeat: Infinity }}
       >
-        <div className="w-6 h-10 border-2 border-gray-light rounded-full flex justify-center pt-2">
+        <div className="w-6 h-10 rounded-full flex justify-center pt-2" style={{ border: '2px solid var(--color-border-strong)' }}>
           <motion.div
-            className="w-1.5 h-1.5 bg-pink rounded-full"
+            className="w-1.5 h-1.5 rounded-full"
+            style={{ background: 'var(--color-pink)' }}
             animate={{ y: [0, 12, 0], opacity: [1, 0.3, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
           />

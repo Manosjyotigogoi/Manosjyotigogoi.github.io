@@ -1,10 +1,12 @@
-import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { useRef, useState } from 'react';
 
 const categories = [
   {
     title: 'Frontend',
     color: 'var(--color-pink)',
+    accentBg: 'var(--color-pink-light)',
+    solidBg: '#fdf2f5',
     icon: '▣',
     skills: [
       { name: 'React 18', level: 90 },
@@ -17,6 +19,8 @@ const categories = [
   {
     title: 'Backend',
     color: 'var(--color-sky)',
+    accentBg: 'var(--color-sky-light)',
+    solidBg: '#f0f7fb',
     icon: '◈',
     skills: [
       { name: 'Node.js', level: 88 },
@@ -29,6 +33,8 @@ const categories = [
   {
     title: 'AI / ML',
     color: 'var(--color-neon)',
+    accentBg: 'var(--color-neon-light)',
+    solidBg: '#f3f7ed',
     icon: '◆',
     skills: [
       { name: 'Python', level: 85 },
@@ -40,7 +46,9 @@ const categories = [
   },
   {
     title: 'Tools',
-    color: 'var(--color-white)',
+    color: 'var(--color-amber)',
+    accentBg: 'var(--color-amber-light)',
+    solidBg: '#fdf8f0',
     icon: '◉',
     skills: [
       { name: 'Git & GitHub', level: 88 },
@@ -52,75 +60,121 @@ const categories = [
   },
 ];
 
-function SkillCategory({ category, index }) {
+function SkillCard({ category, index }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [hovered, setHovered] = useState(false);
+  const [activeSkill, setActiveSkill] = useState(null);
 
   return (
     <motion.div
       ref={ref}
-      className="relative group"
+      className="relative group cursor-default"
       initial={{ opacity: 0, y: 40 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, delay: index * 0.15 }}
-      whileHover={{ scale: 1.02 }}
+      transition={{ duration: 0.55, delay: index * 0.12 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => { setHovered(false); setActiveSkill(null); }}
     >
-      {/* Top border accent that extends on hover */}
-      <div
-        className="absolute top-0 left-0 h-0.5 w-0 group-hover:w-full transition-all duration-500"
-        style={{ background: category.color }}
-      />
-
-      <div
-        className="glass p-6 h-full transition-all duration-300"
+      <motion.div
+        className="card h-full"
+        animate={hovered ? { y: -6, boxShadow: `0 16px 40px ${category.color}20, 0 4px 12px rgba(0,0,0,0.08)` } : { y: 0 }}
+        transition={{ duration: 0.3 }}
         style={{
-          borderRadius: '4px 16px 16px 16px',
-          border: `1px solid ${category.color}15`,
+          borderRadius: '16px',
+          borderTop: `3px solid ${category.color}`,
+          background: hovered ? category.solidBg : 'var(--color-bg-card)',
+          overflow: 'hidden',
         }}
       >
-        {/* Category header */}
-        <div className="flex items-center gap-3 mb-5">
-          <div
-            className="w-8 h-8 flex items-center justify-center text-sm font-bold"
-            style={{
-              background: category.color + '15',
-              color: category.color,
-              clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
-            }}
-          >
-            {category.icon}
-          </div>
-          <h3
-            className="text-base font-bold font-heading tracking-wide"
-            style={{ color: category.color }}
-          >
-            {category.title}
-          </h3>
-        </div>
+        {/* Animated top bar */}
+        <motion.div
+          className="absolute top-0 left-0 h-0.5"
+          animate={hovered ? { width: '100%' } : { width: '0%' }}
+          transition={{ duration: 0.4 }}
+          style={{ background: category.color }}
+        />
 
-        <div className="space-y-3.5">
-          {category.skills.map((skill, i) => (
-            <div key={skill.name}>
-              <div className="flex justify-between mb-1.5">
-                <span className="text-xs text-gray-light font-medium">{skill.name}</span>
-                <span className="text-xs font-mono font-bold" style={{ color: category.color }}>
-                  {skill.level}%
-                </span>
-              </div>
-              {/* Segmented progress bar */}
-              <div className="w-full h-1.5 bg-gray-dark rounded-full overflow-hidden relative">
-                <motion.div
-                  className="h-full"
-                  style={{ background: `linear-gradient(90deg, ${category.color}99, ${category.color})` }}
-                  initial={{ width: 0 }}
-                  animate={inView ? { width: `${skill.level}%` } : { width: 0 }}
-                  transition={{ duration: 1.2, delay: 0.3 + i * 0.1, ease: 'easeOut' }}
-                />
-              </div>
+        <div className="p-7">
+          {/* Header */}
+          <div className="flex items-center gap-3 mb-6">
+            <motion.div
+              className="w-10 h-10 flex items-center justify-center text-base font-bold"
+              animate={hovered ? { rotate: 360 } : { rotate: 0 }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
+              style={{
+                background: category.accentBg,
+                color: category.color,
+                borderRadius: '8px',
+              }}
+            >
+              {category.icon}
+            </motion.div>
+            <div>
+              <h3 className="text-base font-bold" style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-text)' }}>
+                {category.title}
+              </h3>
+              <p className="text-xs" style={{ color: 'var(--color-text-subtle)' }}>
+                {category.skills.length} skills
+              </p>
             </div>
-          ))}
+          </div>
+
+          {/* Skill bars */}
+          <div className="space-y-4">
+            {category.skills.map((skill, i) => (
+              <div
+                key={skill.name}
+                className="group/skill cursor-pointer"
+                onMouseEnter={() => setActiveSkill(skill.name)}
+                onMouseLeave={() => setActiveSkill(null)}
+              >
+                <div className="flex justify-between mb-1.5">
+                  <span
+                    className="text-sm font-medium transition-colors duration-200"
+                    style={{ color: activeSkill === skill.name ? category.color : 'var(--color-text-muted)' }}
+                  >
+                    {skill.name}
+                  </span>
+                  <motion.span
+                    className="text-xs font-bold font-mono"
+                    style={{ color: category.color }}
+                    initial={{ opacity: 0 }}
+                    animate={inView ? { opacity: 1 } : {}}
+                    transition={{ delay: 0.6 + i * 0.08 }}
+                  >
+                    {skill.level}%
+                  </motion.span>
+                </div>
+                {/* Track */}
+                <div
+                  className="w-full h-2 rounded-full overflow-hidden"
+                  style={{ background: 'var(--color-bg-alt)' }}
+                >
+                  <motion.div
+                    className="h-full rounded-full relative overflow-hidden"
+                    style={{ background: `linear-gradient(90deg, ${category.color}80, ${category.color})` }}
+                    initial={{ width: 0 }}
+                    animate={inView ? { width: `${skill.level}%` } : { width: 0 }}
+                    transition={{ duration: 1.1, delay: 0.3 + i * 0.1, ease: 'easeOut' }}
+                  >
+                    {/* Shimmer */}
+                    {hovered && (
+                      <div
+                        className="absolute inset-y-0 w-8"
+                        style={{
+                          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)',
+                          animation: 'shimmer 1.5s ease-in-out infinite',
+                        }}
+                      />
+                    )}
+                  </motion.div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 }
@@ -130,7 +184,7 @@ export default function Skills() {
   const headerInView = useInView(headerRef, { once: true, margin: '-100px' });
 
   return (
-    <section id="skills" className="section">
+    <section id="skills" className="section" style={{ background: 'var(--color-surface)' }}>
       <div className="section-inner">
         <motion.div
           ref={headerRef}
@@ -139,18 +193,18 @@ export default function Skills() {
           animate={headerInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold font-heading mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: 'var(--color-text)' }}>
             Tech <span className="text-gradient-pink-sky">Stack</span>
           </h2>
-          <div className="w-20 h-1 bg-linear-to-r from-pink to-sky mx-auto rounded-full" />
-          <p className="text-gray-light mt-6 max-w-xl mx-auto">
-            Technologies I work with to build modern, scalable applications.
+          <div className="section-divider" />
+          <p className="mt-6 max-w-xl mx-auto text-sm" style={{ color: 'var(--color-text-muted)' }}>
+            Technologies I work with to build modern, scalable applications. Hover to explore each category.
           </p>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {categories.map((cat, i) => (
-            <SkillCategory key={cat.title} category={cat} index={i} />
+            <SkillCard key={cat.title} category={cat} index={i} />
           ))}
         </div>
       </div>
